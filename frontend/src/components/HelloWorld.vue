@@ -5,7 +5,7 @@
     <button @click="multiply">Multiply</button>
     <div v-if="loading"> Loading...</div>
     <div v-if="error"> {{error}}</div>
-    <div v-if="result">Result: {{ result }}</div>
+    <div v-if="result !==null ">Result: {{ result }}</div>
   </div>
 </template>
 
@@ -27,17 +27,15 @@ export default{
         loading.value = true;
         error.value = null;
         result.value = null;
-        if (num1.value == 0 || num2.value == 0){
-          error.value = 'Please enter a valid number';
-        } else {
-          const response = await axios.get(`http://localhost:3000/multiply/`, {
-            params: {
-              num1: num1.value,
-              num2: num2.value,
-            },
-          });
-          result.value = response.data.result; 
-        }
+
+        const response = await axios.get(`http://localhost:3000/multiply/`, {
+          params: {
+            num1: num1.value,
+            num2: num2.value,
+          },
+        });
+        result.value = response.data.result; 
+        
       } catch (err) {
         error.value = 'Failed to get the result. Please try again.';
       } finally {
