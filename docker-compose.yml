@@ -3,28 +3,36 @@ version: "3"
 services:
   backend:
     build:
-      context: backend/ # Use the backend directory
-      dockerfile: Dockerfile # Specify Dockerfile if it's named differently
-
+      context: backend/
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${API_PORT}:8000"
     restart: always
     environment:
-      - DEBUG=1
+      - FRONTEND_PORT=${FRONTEND_PORT}
+      - DJANGO_SECRET=${DJANGO_SECRET}
+      - DEBUG=False
+    networks:
+      - test-valur
+
   frontend:
     build:
-      context: frontend/ # Use the current directory
-      dockerfile: Dockerfile # Specify Dockerfile if it's named differently
+      context: frontend/
+      args:
+        - VUE_APP_API_BASE_URL=${VUE_APP_API_BASE_URL}
+        - NODE_ENV=${NODE_ENV}
+      dockerfile: Dockerfile
     ports:
-      - "8080:80" # Map port 8080 on host to port 80 on the container
-    environment:
-      - NODE_ENV=production # Set environment variable (optional)
+      - "${FRONTEND_PORT}:80"
     restart: always
-    build:
-      context: frontend/ # Use the current directory
-      dockerfile: Dockerfile # Specify Dockerfile if it's named differently
-    ports:
-      - "8080:80" # Map port 8080 on host to port 80 on the container
     environment:
-      - NODE_ENV=production # Set environment variable (optional)
-    restart: always
+      - VUE_APP_API_BASE_URL=${VUE_APP_API_BASE_URL}
+      - NODE_ENV=${NODE_ENV}
+    depends_on:
+      - backend
+    networks:
+      - test-valur
+
+networks:
+  test-valur:
+    driver: bridge
